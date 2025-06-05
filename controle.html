@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Design de Controle Responsivo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos Base (Desktop - "Consolezinho") */
+        html, body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Fundo escuro */
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex; /* Usado para centralizar o consolezinho no desktop */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .controller-body {
+            background-color: #2d3748; /* Corpo do controle - cinza escuro */
+            border-radius: 25px;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%; /* Será limitado pelo max-width no desktop */
+            max-width: 420px; /* Largura máxima para o "consolezinho" */
+            min-height: 180px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35), 0 6px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid #4a5568;
+            position: relative; /* Para o posicionamento dos botões centrais */
+            transition: all 0.3s ease-in-out; /* Para transições suaves */
+        }
+
+        .controls-cluster-left,
+        .controls-cluster-right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .d-pad-modern {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            background-color: #4a5568;
+            border-radius: 50%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.4);
+            border: 2px solid #22272e;
+        }
+
+        .d-pad-modern-button {
+            background-color: #718096;
+            color: #1a202c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            border: 1px solid #4a5568;
+            z-index: 1;
+        }
+        .d-pad-modern-button:hover {
+            background-color: #a0aec0;
+        }
+        .d-pad-modern-button:active {
+            background-color: #4a5568;
+            transform: scale(0.95);
+        }
+
+        .d-pad-modern-button.up    { grid-column: 2; grid-row: 1; border-radius: 15px 15px 5px 5px; }
+        .d-pad-modern-button.left  { grid-column: 1; grid-row: 2; border-radius: 15px 5px 5px 15px; }
+        .d-pad-modern-button.center{ grid-column: 2; grid-row: 2; background-color: #2d3748; border-radius: 50%; width: 35%; height: 35%; margin: auto; border: none;}
+        .d-pad-modern-button.right { grid-column: 3; grid-row: 2; border-radius: 5px 15px 15px 5px; }
+        .d-pad-modern-button.down  { grid-column: 2; grid-row: 3; border-radius: 5px 5px 15px 15px; }
+
+        .center-buttons-container {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+        }
+
+        .menu-button {
+            background-color: #4a5568;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 1px solid #2d3748;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .menu-button:hover {
+            background-color: #718096;
+        }
+         .menu-button:active {
+            transform: scale(0.9);
+            background-color: #2d3748;
+        }
+
+        .action-buttons-diamond {
+            display: grid;
+            grid-template-areas:
+                ".  y ."
+                "x . b"
+                ". a .";
+            grid-template-columns: repeat(3, 42px);
+            grid-template-rows: repeat(3, 42px);
+            gap: 5px;
+            width: calc(42px * 3 + 5px * 2);
+            height: calc(42px * 3 + 5px * 2);
+            align-items: center;
+            justify-items: center;
+            margin-top: 10px;
+        }
+
+        .action-button-diamond {
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: filter 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            border-width: 2px;
+            border-style: solid;
+        }
+        .action-button-diamond:hover {
+            filter: brightness(1.15);
+        }
+        .action-button-diamond:active {
+            transform: scale(0.92);
+            filter: brightness(0.85);
+        }
+
+        .btn-y { background-color: #FFD700; border-color: #cca300; grid-area: y; color: #2d3748;}
+        .btn-x { background-color: #4299e1; border-color: #2b6cb0; grid-area: x; }
+        .btn-b { background-color: #f56565; border-color: #c53030; grid-area: b; }
+        .btn-a { background-color: #48bb78; border-color: #2f855a; grid-area: a; }
+
+
+        /* Estilos para Desktop Menor (ainda consolezinho, mas mais compacto) */
+        @media (max-width: 450px) and (min-width: 769px) { /* Aplicar apenas se NÃO for mobile/tablet */
+             /* Estas regras são para quando a tela do desktop é pequena, mas ainda não é mobile/tablet */
+            .controller-body {
+                padding: 20px;
+                gap: 15px;
+                max-width: 300px;
+            }
+            .d-pad-modern {
+                width: 90px;
+                height: 90px;
+            }
+            .d-pad-modern-button {
+                font-size: 16px;
+            }
+            .action-buttons-diamond {
+                grid-template-columns: repeat(3, 38px);
+                grid-template-rows: repeat(3, 38px);
+                width: calc(38px * 3 + 5px * 2);
+                height: calc(38px * 3 + 5px * 2);
+            }
+            .action-button-diamond {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+            .center-buttons-container {
+                gap: 10px;
+            }
+            .menu-button {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+        }
+
+
+        /* Estilos para Celular e Tablet (Tela Cheia) */
+        @media (max-width: 768px) {
+            html, body {
+                overflow: hidden; /* Previne scrollbars na tela cheia */
+                 /* background-color: #2d3748; /* O corpo do controle se torna o fundo */
+            }
+
+            .controller-body {
+                width: 100%;   /* Ocupa toda a largura */
+                height: 100%;  /* Ocupa toda a altura */
+                max-width: none; /* Remove a limitação de largura máxima */
+                min-height: 0; /* Remove a limitação de altura mínima */
+                border-radius: 0; /* Sem bordas arredondadas em tela cheia */
+                flex-direction: row; /* D-pad à esquerda, botões à direita (para paisagem) */
+                justify-content: space-around; /* Espaça os clusters de controle */
+                align-items: center; /* Centraliza verticalmente os clusters */
+                padding: 5%; /* Padding relativo para diferentes tamanhos de tela */
+                box-shadow: none; /* Sem sombra em tela cheia */
+                background-color: #22272e; /* Um pouco mais escuro para contraste */
+            }
+
+            .controls-cluster-left,
+            .controls-cluster-right {
+                flex-grow: 1; /* Permite que os clusters cresçam */
+                flex-basis: 0; /* Base de crescimento igual */
+                max-width: 45%; /* Evita que um cluster domine o outro */
+                height: 100%; /* Ocupar altura para centralizar conteúdo */
+                justify-content: center; /* Centraliza D-pad/botões dentro do cluster */
+            }
+
+            .d-pad-modern {
+                width: clamp(100px, 30vmin, 180px); /* Tamanho responsivo do D-pad */
+                height: clamp(100px, 30vmin, 180px);
+            }
+            .d-pad-modern-button {
+                font-size: clamp(16px, 5vmin, 28px); /* Tamanho responsivo da fonte */
+            }
+             .d-pad-modern-button.center{
+                width: clamp(25px, 8vmin, 50px);
+                height: clamp(25px, 8vmin, 50px);
+            }
+
+
+            .action-buttons-diamond {
+                width: clamp(100px, 30vmin, 180px); /* Tamanho responsivo */
+                height: clamp(100px, 30vmin, 180px);
+                /* Ajustar colunas/linhas do grid dinamicamente ou simplificar */
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: repeat(3, 1fr);
+                gap: clamp(4px, 1.5vmin, 10px);
+            }
+            .action-button-diamond {
+                width: clamp(30px, 9vmin, 60px); /* Tamanho responsivo dos botões */
+                height: clamp(30px, 9vmin, 60px);
+                font-size: clamp(14px, 4vmin, 24px);
+            }
+
+            .center-buttons-container {
+                position: absolute;
+                bottom: 20px;
+                width: auto; /* Ajustar largura automaticamente */
+                z-index: 10; /* Para ficar sobre outros elementos se necessário */
+                gap: 15px;
+            }
+            .menu-button {
+                width: clamp(30px, 8vmin, 45px);
+                height: clamp(30px, 8vmin, 45px);
+                font-size: clamp(12px, 3.5vmin, 18px);
+            }
+
+            /* Ajustes para telas muito pequenas em modo paisagem (tela cheia) */
+            /* Se a tela for muito baixa em altura, pode ser necessário ajustar */
+            @media (max-height: 400px) and (orientation: landscape) {
+                .d-pad-modern, .action-buttons-diamond {
+                    width: clamp(80px, 25vmin, 150px);
+                    height: clamp(80px, 25vmin, 150px);
+                }
+                .action-button-diamond {
+                     width: clamp(25px, 7vmin, 50px);
+                     height: clamp(25px, 7vmin, 50px);
+                }
+                .center-buttons-container {
+                    bottom: 10px;
+                }
+                 .menu-button {
+                    width: clamp(28px, 7vmin, 40px);
+                    height: clamp(28px, 7vmin, 40px);
+                }
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="controller-body">
+        <!-- Lado Esquerdo: D-Pad -->
+        <div class="controls-cluster-left">
+            <div class="d-pad-modern">
+                <button class="d-pad-modern-button up" aria-label="Cima"><span>&#9650;</span></button>
+                <button class="d-pad-modern-button left" aria-label="Esquerda"><span>&#9664;</span></button>
+                <div class="d-pad-modern-button center"></div>
+                <button class="d-pad-modern-button right" aria-label="Direita"><span>&#9654;</span></button>
+                <button class="d-pad-modern-button down" aria-label="Baixo"><span>&#9660;</span></button>
+            </div>
+        </div>
+
+        <!-- Lado Direito: Botões de Ação -->
+        <div class="controls-cluster-right">
+            <div class="action-buttons-diamond">
+                <button class="action-button-diamond btn-y" aria-label="Botão Y">Y</button>
+                <button class="action-button-diamond btn-x" aria-label="Botão X">X</button>
+                <button class="action-button-diamond btn-b" aria-label="Botão B">B</button>
+                <button class="action-button-diamond btn-a" aria-label="Botão A">A</button>
+            </div>
+        </div>
+
+        <!-- Botões Centrais (View/Menu) -->
+        <div class="center-buttons-container">
+            <button class="menu-button" aria-label="Botão View"><span>&#9776;</span></button>
+            <button class="menu-button" aria-label="Botão Menu"><span>&#9636;</span></button>
+        </div>
+    </div>
+
+    <script>
+        // Script para feedback visual básico
+        const allButtons = document.querySelectorAll('.d-pad-modern-button, .action-button-diamond, .menu-button');
+
+        allButtons.forEach(button => {
+            button.addEventListener('mousedown', (e) => { e.preventDefault(); });
+
+            button.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                // Adiciona uma classe para o estado ativo, permitindo estilização mais complexa via CSS se necessário
+                e.currentTarget.classList.add('active-touch');
+                // Mantém transformações diretas para feedback imediato
+                e.currentTarget.style.transform = 'scale(0.92)';
+                if (e.currentTarget.classList.contains('action-button-diamond')) {
+                    e.currentTarget.style.filter = 'brightness(0.85)';
+                } else if (e.currentTarget.classList.contains('d-pad-modern-button') && !e.currentTarget.classList.contains('center')) {
+                     e.currentTarget.style.backgroundColor = '#4a5568';
+                } else if (e.currentTarget.classList.contains('menu-button')) {
+                     e.currentTarget.style.backgroundColor = '#2d3748';
+                }
+            }, { passive: false });
+
+            button.addEventListener('touchend', (e) => {
+                e.currentTarget.classList.remove('active-touch');
+                e.currentTarget.style.transform = '';
+                if (e.currentTarget.classList.contains('action-button-diamond')) {
+                    e.currentTarget.style.filter = '';
+                } else if (e.currentTarget.classList.contains('d-pad-modern-button') && !e.currentTarget.classList.contains('center')) {
+                     e.currentTarget.style.backgroundColor = '';
+                } else if (e.currentTarget.classList.contains('menu-button')) {
+                     e.currentTarget.style.backgroundColor = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
